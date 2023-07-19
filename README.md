@@ -1,0 +1,1 @@
+File storage app that uses azure to store file.
