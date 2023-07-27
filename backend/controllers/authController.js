@@ -3,49 +3,60 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 exports.registerUser = async (req, res) => {
-    try {
-        const {username, password} = req.body;
-        
-        const existingUser = await User.findOne({email});
-        if(existingUser){
-            return res.status(409).json({error : 'User already exists!'});
-        }
+  try {
+    const { email, password } = req.body;
 
-        const hashPassword = await bcrypt.hash(password, 10);
-        
-        const newUser = new User({username, password: hashPassword});
-        await newUser.save();
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ error: 'User already exists!' });
+    }
 
-        return res.status(201).json({ message: 'User registered successfully!' });
+    const hashPassword = await bcrypt.hash(password, 10);
 
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal server error!' });
-      }
+    const newUser = new User({ email, password: hashPassword });
+    await newUser.save();
+
+    // Generate JWT token after successful registration
+    const token = jwt.sign(
+      { userId: newUser._id, email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+
+    return res.status(201).json({ message: 'User registered successfully!', token });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal server error!' });
+
+  }
 };
 
 exports.loginUser = async (req, res) => {
-    try {
-        const {username, password} = req.body;
-        
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(401).json({ error: 'Authentication failed!' });
-        }
+  try {
+    const { email, password } = req.body;
 
-        const validatePassword = await bcrypt.compare(password, user.password);
-        if(!validatePassword){
-            return res.status(401).json({ error: 'Password is wrong!' });
-        }
-
-        const token = jwt.sign(
-            { userId: user._id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '2h' } 
-        );
-
-        return res.status(200).json({ token });    
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal server error!' });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Authentication failed!' });
     }
+
+    const validatePassword = await bcrypt.compare(password, user.password);
+    if (!validatePassword) {
+      return res.status(401).json({ error: 'Password is wrong!' });
+    }
+
+    // Generate JWT token after successful login
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+
+    return res.status(200).json({ token });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal server error!' });
+  }
 };

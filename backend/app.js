@@ -5,20 +5,17 @@ const dotenv = require('dotenv');
 const cookieParser = require("cookie-parser")
 
 const authMiddleware = require('./middlewares/authMiddleware');
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/routes');
 const User = require('./models/user');
 
 const app = express();
 
+
+
 dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    credentials: true,
-    origin: process.env.CLIENT_URL,
-  })
-);
+app.use(cors({ origin: 'http://127.0.0.1:5173' }));
 
 const url = process.env.MONGO_URL;
 mongoose
