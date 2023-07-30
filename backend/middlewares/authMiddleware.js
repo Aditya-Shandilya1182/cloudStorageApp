@@ -1,25 +1,19 @@
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 exports.authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Authentication failed: Missing token!' });
-  }
-
-  const token = authHeader.split(' ')[1];
+  const token =
+    req.body.token || req.query.token || req.headers["x-access-token"];
+    console.log(token);
 
   if (!token) {
-    return res.status(401).json({ error: 'Authentication failed: Invalid token format!' });
+    return res.status(403).json({ error:"A token is required for authentication"});
   }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      console.log({token});
-      return res.status(403).json({ error: 'Authentication failed: Invalid token!' });
-    }
-
-    req.user = user;
-    next();
-  });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+  } catch (err) {
+    return res.status(401).json({ error:"Invalid Token"});
+  }
+  return next();
 };

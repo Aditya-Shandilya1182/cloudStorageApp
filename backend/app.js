@@ -10,8 +10,6 @@ const User = require('./models/user');
 
 const app = express();
 
-
-
 dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
@@ -27,9 +25,9 @@ mongoose
     console.error("Failed to connect to MongoDB Atlas:", error);
 });
 
-app.use(authMiddleware.authenticateToken);
+app.use('/api', authRoutes);
 
-app.use('/api/auth', authRoutes);
+app.use(authMiddleware.authenticateToken);
 
 app.get('/test', (req,res) => {
     res.json("test ok");
