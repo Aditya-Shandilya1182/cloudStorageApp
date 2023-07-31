@@ -27,7 +27,7 @@ exports.uploadFile = async (req, res, next) => {
     }
 
     // Generate a unique filename using UUID
-    const uniqueFileName = `${uuidv4()}-${file.originalname}`;
+    const uniqueFileName = `${uuidv4()}-${file.name}`;
 
     // Get a reference to the container
     const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_CONTAINER_NAME);
@@ -36,15 +36,15 @@ exports.uploadFile = async (req, res, next) => {
     const blockBlobClient = containerClient.getBlockBlobClient(uniqueFileName);
     await blockBlobClient.uploadData(file.buffer, {
       blobHTTPHeaders: {
-        blobContentType: file.mimetype,
-        blobContentDisposition: `attachment; filename="${file.originalname}"`,
+        blobContentType: file.type,
+        blobContentDisposition: `attachment; filename="${file.name}"`,
       },
     });
 
     // Save file information to the database
     const newFile = new File({
-      filename: file.originalname,
-      fileType: file.mimetype,
+      filename: file.name,
+      fileType: file.type,
       fileSize: file.size,
       fileKey: uniqueFileName,
       fileURL: blockBlobClient.url,
