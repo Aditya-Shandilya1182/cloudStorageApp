@@ -4,7 +4,6 @@ require('dotenv').config();
 exports.authenticateToken = (req, res, next) => {
   const token =
     req.body.token || req.query.token || req.headers["x-access-token"];
-    console.log(token);
 
   if (!token) {
     return res.status(403).json({ error:"A token is required for authentication"});

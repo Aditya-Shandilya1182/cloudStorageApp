@@ -13,12 +13,14 @@ router.post('/auth/login', loginUser);
 router.post('/upload', uploadController.uploadFile);
 
 // Route to create a link for sharing the file
-//router.post('/create-link', linkController.createFileLink);
+router.post('/create-link', linkController.createFileLink);
+
+router.get('/filelist', uploadController.fileList);
 
 // Route to get all links for a file
-//router.get('/file-links/:fileId', linkController.getFileLinks);
+router.get('/file-links/:fileId', linkController.getFileLinks);
 
 // Route to control access to the file via email
-//router.post('/access-file', accessController.accessFile);
+router.post('/access-file', accessController.accessFile);
 
 module.exports = router;

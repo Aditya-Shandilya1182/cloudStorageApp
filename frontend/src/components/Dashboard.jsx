@@ -9,11 +9,9 @@ export default function Dashboard() {
       try {
         const reader = new FileReader();
         reader.readAsDataURL(selectedFile);
-        console.log(selectedFile)
         reader.onloadend = async () => {
           const base64File = reader.result.split(',')[1];
-          console.log(base64File)
-          await axios.post('http://localhost:3000/api/upload', { base64File });
+          await axios.post('http://localhost:3000/api/upload', { base64File, filename: selectedFile.name, fileSize: selectedFile.size, fileType: selectedFile.type });
         };
       } catch (error) {
         console.error(error);
